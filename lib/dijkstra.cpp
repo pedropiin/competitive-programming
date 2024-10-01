@@ -6,11 +6,10 @@ typedef long long ll;
 
 #define INF 1e9
 
-vector<vector<pair<int, int>>> adj;
 vector<int> dist;
 vector<int> pred;
 
-void dijkstra(int s, int n) {
+void dijkstra(int s, int n, vector<vector<pair<int, int>>> &adj) {
     dist.assign(n, INF);
     pred.assign(n, -1);
     priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
