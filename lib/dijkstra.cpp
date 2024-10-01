@@ -6,7 +6,7 @@ typedef long long ll;
 
 #define INF 1e9
 
-vector<vector<pair<int, int>>> adj
+vector<vector<pair<int, int>>> adj;
 vector<int> dist;
 vector<int> pred;
 
