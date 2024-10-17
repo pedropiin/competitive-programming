@@ -1,12 +1,12 @@
 #include <bits/stdc++.h>
- 
+
 using namespace std;
- 
+
 typedef long long ll;
- 
+
 vector<vector<char>> board(1001, vector<char> (1001));
 vector<vector<int>> cor(1001, vector<int> (1001));
- 
+
 void dfs(int x, int y, int n, int m) {
     cor[x][y] = 1;
     int xtemp, ytemp;
@@ -40,12 +40,11 @@ void dfs(int x, int y, int n, int m) {
         }
     }
 }
- 
- 
+
 int main (int argc, char* argv[]) {
     ios::sync_with_stdio(false);
     cin.tie(0);
- 
+
     int n, m;
     cin >> n >> m;
     for (int i = 0; i < n; i++) {
@@ -54,7 +53,7 @@ int main (int argc, char* argv[]) {
             cor[i][j] = 0;
         }
     }
- 
+
     int count = 0;
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
@@ -64,9 +63,9 @@ int main (int argc, char* argv[]) {
             }
         }
     }
- 
+
     cout << count << endl;
- 
+
     return 0;
 }
 
