@@ -9,27 +9,66 @@ typedef long long ll;
 vector<int> dist;
 vector<int> pred;
 
-void dijkstra(int s, int n, vector<vector<pair<int, int>>> &adj) {
-    dist.assign(n, INF);
-    pred.assign(n, -1);
-    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
-    dist[s] = 0;
-    pq.push(make_pair(dist[s], s));
+int min(int a, int b, int c) {
+	return min(min(a, b), c);
+}
 
-    while (!pq.empty()) {
-        pair<int, int> front = pq.top(); pq.pop();
-        int d = front.first, u = front.second;
-        if (d > dist[u]) {
-            continue;
+void backtrack(vector<vector<int>> &dp, int i, int j, vector<pair<int, pair<int, char>>> &ans, string &s2) {
+    int change_i = 0, change_j = 0;
+    if (dp[i][j] > 0) {
+        int corner = 0;
+        if ((i - 1) < 0) {
+            corner = 1;
+        } else if ((j - 1) < 0) {
+            corner = 2;
         }
-        for (int j = 0; j < adj[u].size(); j++) {
-            pair<int, int> v = adj[u][j];
-            if (dist[u] + v.second < dist[v.first]) {
-                dist[v.first] = dist[u] + v.second;
-                pred[v.first] = u;
-                pq.push(make_pair(dist[v.first], v.first));
+
+        if (corner == 0) {
+            // normal case
+            int curr = dp[i][j];
+            int left = dp[i][j - 1];
+            int diag = dp[i - 1][j - 1];
+            int up = dp[i - 1][j];
+
+            if (left < diag && left < up) {
+                if (left != curr) {
+                    // inserted element
+                    ans.push_back(make_pair(0, make_pair(i, s2[j])));
+                    change_j = 1;
+                }
+            } else if (up < diag && up < left) {
+                if (up != curr) {
+                    // deleted element
+                    ans.push_back(make_pair(1, make_pair(i, '0')));
+                    change_i = 1;
+                }
+            } else if (diag < left && diag < up) {
+                if (diag != curr) {
+                    // replaced element
+                    ans.push_back(make_pair(2, make_pair(i, s2[j])));
+                    change_i = 1;
+                    change_j = 1;
+                }
             }
+        } else if (corner == 1) {
+            // top row
+            int curr = dp[i][j];
+            int left = dp[i][j - 1];
+            if (left != curr) {
+                ans.push_back(make_pair(0, make_pair(i, s2[j])));
+            }
+            change_j = 1;
+        } else if (corner == 2) {
+            // left column
+            int curr = dp[i][j];
+            int up = dp[i - 1][j];
+            if (up != curr) {
+                ans.push_back(make_pair(1, make_pair(i, '0')));
+            }
+            change_i = 1;
         }
+        
+        backtrack(dp, (i - change_i), (j - change_j), ans, s2);
     }
 }
 
@@ -41,83 +80,41 @@ int main (int argc, char* argv[]) {
     while (cin >> s1) {
         cin >> s2;
 
-        int n1 = s1.size();
-        int n2 = s2.size();
+        int n1 = s1.size(), n2 = s2.size();
+        vector<vector<int>> dp((n1 + 1), vector<int> (n2 + 1, INF));
 
-        int lines = (n1 + 1);
-        int cols = (n2 + 1);
-        vector<vector<pair<int, int>>> adj((lines) * (cols), vector<pair<int, int>>());
+        for (int i = 0; i <= n2; i++) {
+            dp[0][i] = i;
+        }
+        for (int j = 0; j <= n1; j++) {
+            dp[j][0] = j;
+        }
 
-        for (int i = 0; i < lines; i++) {
-            for (int j = 0; j < cols; j++) {
-                if (i == (lines - 1) && j == (cols - 1)) {
-                    // final node. It doesn't have any edges. Therefore, no need for initialization.
-                    continue;
-                } else {
-                    // common nodes
-                    if ((j + 1) < cols && (i + 1) < lines) {
-                        // not a corner case of the graph;
-                        // adding horizontal edge with weight = 1
-                        adj[i * cols + j].push_back(make_pair((i * cols + j + 1), 1));  
-
-                        //adding vertcal edge with weight = 1;
-                        adj[i * cols + j].push_back(make_pair(((i + 1) * cols + j), 1));
-
-                        // adding diagonal edge with conditional weigh;
-                        adj[i * cols + j].push_back(make_pair(((i + 1) * cols + j + 1), s1[i] == s2[j] ? 0 : 1));
-                    } else if ((i + 1) >= lines) {
-                        // last line of the matrix. Therefore, only horizontal lines
-                        adj[i * cols + j].push_back(make_pair((cols * i + j + 1), 1));
-                    } else if ((j + 1) >= cols) {
-                        // last column of the matrix. Therefore, only vertical lines.
-                        adj[i * cols + j].push_back(make_pair((cols * (i + 1) + j), 1));
-                    }
+        for (int i = 1; i <= n1; i++) {
+            for (int j = 1; j <= n2; j++) {
+                int cost = 1;
+                if (s1[i - 1] == s2[j - 1]) {
+                    cost = 0;
                 }
+                dp[i][j] = min(dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + cost);
             }
         }
 
-        dijkstra(0, (lines * cols), adj);
-        cout << dist[lines * cols - 1] << endl;
+        cout << dp[n1][n2] << endl;
 
-        // print path
-        stack<pair<int, int>> seq;
-        int target = lines * cols - 1;
-        while (pred[target] != -1) {
-            seq.push(make_pair(target, pred[target]));
-            target = pred[target];
-        }
+        vector<pair<int, pair<int, char>>> ans;
+        backtrack(dp, n1, n2, ans, s2);
 
-
-        int count = 0;
-        int i_pred, j_pred, i_move, j_move;
-        int removes = 0, inserts = 0;
-        while (!seq.empty()) {
-            pair<int, int> temp = seq.top();
-            i_pred = temp.second / cols;
-            j_pred = temp.second % cols;
-            i_move = temp.first / cols;
-            j_move = temp.first % cols;
-
-            if ((i_move - i_pred) == 1 && (j_move - j_pred) == 1) {
-                // moved diagonally
-                if (adj[i_pred * cols + j_pred][2].second == 1) {
-                    cout << ++count << " Replace " << (i_move - removes + inserts) << ',' << s2[j_move - 1] << endl;
-                } 
-            } else if ((i_move - i_pred) == 1) {
-                // moved vertically
-                cout << ++count << " Delete " << (i_move - removes + inserts) << endl;
-                removes++;
-            } else if ((j_move - j_pred) == 1) {
-                cout << ++count << " Insert " << (i_move + 1 - removes + inserts) << ',' << s2[j_move - 1] << endl;
-                inserts++;
+        int count = 1;
+        for (int i = ans.size() - 1; i >= 0; i--) {
+            if (ans[i].first == 0) {
+                cout << count << " Insert " << ans[i].second.first << ',' << ans[i].second.second << endl;
+            } else if (ans[i].first == 1) {
+                cout << count << " Delete " << ans[i].second.first << endl;
+            } else {
+                cout << count << " Replace " << ans[i].second.first << ',' << ans[i].second.second << endl;
             }
-            seq.pop();
         }
-        cout << endl;
-
-        dist.clear();
-        pred.clear();
-        adj.clear();
     }
 
     return 0;
