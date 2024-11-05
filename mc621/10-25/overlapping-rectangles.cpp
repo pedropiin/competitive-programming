@@ -4,8 +4,6 @@ using namespace std;
 
 typedef long long ll;
 
-#define MAX_SIZE 10000
-
 int main (int argc, char* argv[]) {
     ios::sync_with_stdio(false);
     cin.tie(0);
@@ -13,46 +11,25 @@ int main (int argc, char* argv[]) {
     int t;
     cin >> t;
     while (t--) {
-        cin;
-        // vector to store the four points of a rectangle
-        // [0] = low_left, [1] = upper right, [2] = upper_left, [3] = lower right
-        vector<pair<int, int>> rect1(4), rect2(4);
-        cin >> rect1[0].first >> rect1[0].second >> rect1[1].first >> rect1[1].second >> rect2[0].first >> rect2[0].second >> rect2[1].first >> rect2[1].second;
+        cin.ignore();
+        pair<int, int> ll1, ur1, ll2, ur2;
+        cin >> ll1.first >> ll1.second >> ur1.first >> ur1.second >> ll2.first >> ll2.second >> ur2.first >> ur2.second;
 
-        rect1[2] = make_pair(rect1[0].first, rect1[1].second);
-        rect1[3] = make_pair(rect1[1].first, rect1[0].second);
-
-        rect2[2] = make_pair(rect2[0].first, rect2[1].second);
-        rect2[3] = make_pair(rect2[1].first, rect2[0].second);
-
-        vector<vector<int>> cart_plane(MAX_SIZE, vector<int>(MAX_SIZE, 0));
-
-        // initializing plane
-        for (int i = 0; i < MAX_SIZE; i++) {
-            if (i < rect1[0].first || i > rect1[1].first) {
-                continue;
+        // idea of checking overlap taken from geeks for geeks: https://www.geeksforgeeks.org/find-two-rectangles-overlap/
+        if (ll1.first >= ur2.first || ll2.first >= ur1.first || ll2.second >= ur1.second || ll1.second >= ur2.second) {
+            // do not overlap
+            cout << "No Overlap" << endl;
+            if (t > 0) {
+                cout << endl;
             }
-            for (int j = 0; j < MAX_SIZE; j++) {
-                if (j < rect1[0].second || j > rect1[1].second) {
-                    continue;
-                }
-                cart_plane[i][j] = 1;
-            }
-        }
+            continue;
+        } 
 
-        int first_time = 1;
-        int x_lowleft, y_lowleft, x_upright, y_upright;
-        for (int i = rect2[0].first; i <= rect2[1].first; i++) {
-            for (int j = rect2[0].second; j <= rect2[1].second; j++) {
-                if (cart_plane[i][j] == 1) {
-                    if (first_time) {
-                        x_lowleft = i;
-                        first_time == 0;
-                        continue;
-                    } 
-                    
-                }
-            }
+        // if here, they do overlap
+        // idea to get overlapping area points taken from geeks for geeks: https://www.geeksforgeeks.org/total-area-two-overlapping-rectangles/
+        cout << max(ll1.first, ll2.first) << " " << max(ll1.second, ll2.second) << " " << min(ur1.first, ur2.first) << " " << min(ur1.second, ur2.second) << endl;
+        if (t > 0) {
+            cout << endl;
         }
     }
 
