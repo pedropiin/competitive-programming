@@ -4,17 +4,16 @@ using namespace std;
 
 typedef long long ll;
 
-vector<pair<int, int>> cops;
-vector<pair<int, int>> robbers;
-vector<pair<int, int>> oss;
-vector<int> with_cops;
-vector<int> with_robbers;
-vector<pair<int, int>> triangle;
-
-
 ll cross_product(pair<int, int> &p1, pair<int, int> &p2, pair<int, int> &p3) {
+    if (p1.first == p2.first && p1.second == p2.second) {
+        if (p1.first != p3.first || p1.second != p3.second) {
+            return 1;
+        }
+        return -1;
+    }
+
 	ll xtmp1 = (p3.first - p1.first);
-	ll ytmp1 = (p3.second - p1.second);
+	ll ytmp1 = (p3.second - p1.second); 
 	ll xtmp2 = (p3.first - p2.first);
 	ll ytmp2 = (p3.second - p2.second);
 
@@ -22,38 +21,38 @@ ll cross_product(pair<int, int> &p1, pair<int, int> &p2, pair<int, int> &p3) {
 	return cross;
 }
 
-int area_triangle() {
-    ll t1 = triangle[0].first * (triangle[1].second - triangle[2].second);
-    ll t2 = triangle[1].first * (triangle[2].second - triangle[0].second);
-    ll t3 = triangle[2].first * (triangle[0].second - triangle[1].second);
-    ll area = t1 + t2 + t3;
+vector<pair<int, int>> convex_hull(vector<pair<int, int>> &points) {
+    int n = points.size();
 
-    if (area > 0) {
-        return 1;
-    } else {
-        return 0;
-    }
-}
+	vector<pair<int, int>> hull;
+	vector<pair<int, int>>::iterator it;
+	hull.push_back(points[0]);
+	hull.push_back(points[1]);
 
-int inside_triangle(pair<int, int> &point) {
-    int inside = 1;
-    int orientation = area_triangle();
-    for (int i = 0; i < 3; i++) {
-        if (orientation == 0) {
-            // negative area triangle
-            if (cross_product(triangle[i], triangle[(i + 1) % 3], point) > 0) {
-                inside = 0;
-                break;
-            }
-        } else {
-            // posiive area triangle
-            if (cross_product(triangle[i], triangle[(i + 1) % 3], point) < 0) {
-                inside = 0;
-                break;
-            }
-        }
-    }
-    return inside;
+	// building upper hull
+	int last = 1; // points to the last element of the hull
+	for (int i = 2; i < n; i++) {
+		while (last >= 1 && cross_product(hull[last - 1], hull[last], points[i]) > 0) {
+			hull.pop_back();
+			last--;
+		}
+		hull.push_back(points[i]);
+		last++;
+	}
+	int t = hull.size();
+	for (int i = (n - 2); i >= 0; i--) {
+		while (last >= t && cross_product(hull[last - 1], hull[last], points[i]) > 0) {
+			hull.pop_back();
+			last--;
+		}
+		hull.push_back(points[i]);
+		last++;
+	}
+	
+	hull.pop_back();
+	last--;
+    
+    return hull;
 }
 
 int main (int argc, char* argv[]) {
@@ -65,54 +64,69 @@ int main (int argc, char* argv[]) {
     int test_num = 1;
     int xtemp, ytemp;
     while (c != 0 || r != 0 || o != 0) {
+        vector<pair<int, int>> cops(c);
         for (int i = 0; i < c; i++) {
-            cin >> xtemp >> ytemp;
-            cops.push_back(make_pair(xtemp, ytemp));
+            cin >> cops[i].first >> cops[i].second;
         }
 
+        vector<pair<int, int>> robbers(r);
         for (int i = 0; i < r; i++) {
-            cin >> xtemp >> ytemp;
-            robbers.push_back(make_pair(xtemp, ytemp));
+            cin >> robbers[i].first >> robbers[i].second;
         }
 
+        vector<pair<int, int>> oss(o);
         for (int i = 0; i < o; i++) {
-            cin >> xtemp >> ytemp;
-            oss.push_back(make_pair(xtemp, ytemp));
+            cin >> oss[i].first >> oss[i].second;
         }
 
-        with_cops.assign(o, 0);
-        with_robbers.assign(o, 0);
+        // sorting points
+        sort(cops.begin(), cops.end(), [](const pair<int, int> &left, const pair<int, int> &right){
+            if (left.first == right.first) {
+                return left.second < right.second;
+            }
+            return left.first < right.first;
+        });
+        sort(robbers.begin(), robbers.end(), [](const pair<int, int> &left, const pair<int, int> &right){
+            if (left.first == right.first) {
+                return left.second < right.second;
+            }
+            return left.first < right.first;
+        });
 
-        // TODO: deal with case in which there are less than 3 robbers and case with less than 3 cops
+        vector<int> with_cops(o, 0);
+        vector<int> with_robbers(o, 0);
 
-        // checking if are safe
-        for (int i = 0; i < (c - 2); i++) {
-            for (int j = (i + 1); j < (c - 1); j++) {
-                for (int k = (j + 1); k < c; k++) {
-                    // all possible triangles of cops
-                    triangle.push_back(cops[i]); triangle.push_back(robbers[i]); triangle.push_back(oss[i]);
-                    sort(triangle.begin(), triangle.end());
-                    for (int t = 0; t < o; t++) {
-                        // all citizens
-                        with_cops[t] = inside_triangle(oss[t]);
+        if (c >= 3) {
+            vector<pair<int, int>> hull_cops = convex_hull(cops);
+
+            int n = hull_cops.size();
+            for (int i = 0; i < o; i++) {
+                int in = 1;
+                for (int j = 0; j < n; j++) {
+                    if (cross_product(hull_cops[j], hull_cops[(j + 1) % n], oss[i]) > 0) {
+                        // cout << "o ponto " << oss[i].first << " " << oss[i].second << " está fora do hull dos policiais" << endl;
+                        in = 0;
+                        break;
                     }
-                    triangle.clear();
                 }
+                with_cops[i] = in;
             }
         }
 
-        for (int i = 0; i < (r - 2); i++) {
-            for (int j = (i + 1); j < (r - 1); j++) {
-                for (int k = (j + 1); k < r; k++) {
-                    // all possible triangles of robbers
-                    triangle.push_back(robbers[i]); triangle.push_back(robbers[j]); triangle.push_back(robbers[k]);
-                    sort(triangle.begin(), triangle.end());
-                    for (int t = 0; t < o; t++) {
-                        // all citizens
-                        with_robbers[t] = inside_triangle(oss[t]);
+        if (r >= 3) {
+            vector<pair<int, int>> hull_robbers = convex_hull(robbers);
+
+            int n = hull_robbers.size();
+            for (int i = 0; i < o; i++) {
+                int in = 1;
+                for (int j = 0; j < n; j++) {
+                    if (cross_product(hull_robbers[j], hull_robbers[(j + 1) % n], oss[i]) > 0) {
+                        // cout << "o ponto " << oss[i].first << " " << oss[i].second << " está fora do hull dos ladrões" << endl;
+                        in = 0;
+                        break;
                     }
-                    triangle.clear();
                 }
+                with_robbers[i] = in;
             }
         }
 
@@ -120,18 +134,12 @@ int main (int argc, char* argv[]) {
         for (int i = 0; i < o; i++) {
             if (with_cops[i]) {
                 cout << "\t Citizen at (" << oss[i].first << "," << oss[i].second << ") is safe." << endl;
-            } else if (!with_cops[i] && with_robbers[i]) {
+            } else if (with_robbers[i]) {
                 cout << "\t Citizen at (" << oss[i].first << "," << oss[i].second << ") is robbed." << endl;
             } else {
                 cout << "\t Citizen at (" << oss[i].first << "," << oss[i].second << ") is neither." << endl;
             }
         }
-
-        cops.clear();
-        robbers.clear();
-        oss.clear();
-        with_cops.clear();
-        with_robbers.clear();
 
         cin.ignore();
         cin >> c >> r >> o;
