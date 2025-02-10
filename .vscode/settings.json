@@ -91,5 +91,8 @@
         "typeinfo": "cpp",
         "valarray": "cpp",
         "variant": "cpp"
+    },
+    "files.watcherExclude": {
+        "**/target": true
     }
 }
