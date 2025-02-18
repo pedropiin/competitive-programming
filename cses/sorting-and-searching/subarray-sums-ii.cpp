@@ -8,24 +8,23 @@ int main(int argc, char *argv[]) {
 	ios::sync_with_stdio(false);
 	cin.tie(0);
 	cout.tie(0);
-	
-	int n;
-	cin >> n;
-	vector<int> idx(n + 1);
-	int t;
+
+	int n, x;
+	cin >> n >> x;
+	vector<ll> ps = {0};
+	map<ll, int> m;
+	m[0] = 1;
+	ll count = 0;
+	int t, temp;
 	for (int i = 0; i < n; i++) {
 		cin >> t;
-		idx[t] = i;
-	}
-
-	int count = 1;
-	for (int i = 1; i < n; i++) {
-		if (idx[i + 1] < idx[i]) {
-			count++;
-		}
+		ps.push_back(t + ps[i]);
+		count += m[ps[i + 1] - x];
+		m[ps[i + 1]]++;
 	}
 
 	cout << count << endl;
-	
+
 	return 0;
+
 }
