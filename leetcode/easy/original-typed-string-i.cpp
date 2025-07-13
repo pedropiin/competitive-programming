@@ -26,7 +26,9 @@ int main (int argc, char *argv[]) {
 
     string word;
     cin >> word;
-    cout << Solution.possibleStringCount(word) << endl;
+
+    Solution solve;
+    cout << solve.possibleStringCount(word) << endl;
 
     return 0;
 }

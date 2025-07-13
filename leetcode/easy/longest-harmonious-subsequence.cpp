@@ -40,7 +40,8 @@ int main (int argc, char *argv[]) {
     vector<int> nums(n);
     for (int i = 0; i < n; i++) cin >> nums[i];
 
-    cout << Solution.findLHS(nums) << endl;
+    Solution solve;
+    cout << solve.findLHS(nums) << endl;
 
     return 0;
 }

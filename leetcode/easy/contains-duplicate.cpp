@@ -32,8 +32,8 @@ int main (int argc, char *argv[]) {
     vector<int> nums(n);
     for (int i = 0; i < n; i++) cin >> nums[i];
 
-    bool result = Solution.containsDuplicate(nums);
-    cout << result << endl;
+    Solution solve;
+    cout << solve.containsDuplicate(nums) << endl;
 
     return 0;
 }

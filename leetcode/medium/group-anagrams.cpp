@@ -42,7 +42,8 @@ int main (int argc, char *argv[]) {
     vector<string> strs(n);
     for (int i = 0; i < n; i++) cin >> strs[i];
 
-    cout << Solution.groupAnagrams(strs) << endl;
+    Solution solve;
+    cout << solve.groupAnagrams(strs) << endl;
 
     return 0;
 }

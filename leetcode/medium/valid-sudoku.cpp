@@ -41,7 +41,8 @@ int main (int argc, char *argv[]) {
     for (int i = 0; i < 9; i++)
         for (int j = 0; j < 9; j++) cin >> board[i][j];
 
-    cout << Solution.isValidSudoku(board) << endl;
+    Solution solve;
+    cout << solve.isValidSudoku(board) << endl;
 
     return 0;
 }

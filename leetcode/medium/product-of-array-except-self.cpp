@@ -28,7 +28,8 @@ int main (int argc, char *argv[]) {
     vector<int> nums(n);
     for (int i = 0; i < n; i++) cin >> nums[i];
 
-    cout << Solution.productExceptSelf(nums) << endl;
+    Solution solve;
+    cout << solve.productExceptSelf(nums) << endl;
 
     return 0;
 }

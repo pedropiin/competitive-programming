@@ -28,7 +28,9 @@ int main (int argc, char *argv[]) {
 
     string s, t;
     cin >> s >> t;
-    cout << Solution.isAnagram(s, t) << endl;
+
+    Solution solve;
+    cout << solve.isAnagram(s, t) << endl;
 
     return 0;
 }

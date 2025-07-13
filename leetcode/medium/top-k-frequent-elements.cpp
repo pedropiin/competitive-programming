@@ -43,7 +43,8 @@ int main (int argc, char *argv[]) {
     vector<int> nums(n);
     for (int i = 0; i < n; i++) cin >> nums[i];
 
-    cout << Solution.topKFrequent(nums, k) << endl;
+    Solution solve;
+    cout << solve.topKFrequent(nums, k) << endl;
 
     return 0;
 }
